@@ -40,19 +40,9 @@ class LinkedQueue:
 
     def __init__(self):
         """Create an empty queue."""
-        self._header = Node(None)  # sentinel node of the underlying list
-        self._tail = self._header  # queue is initialised empty
+        self._head = None  # head node of the underlying list
+        self._tail = None  # tail node of the underlying list
         self._size = 0  # number of elements in the queue
-
-    @property
-    def _head(self) -> Node | None:  # head node of the underlying list
-        return self._header.next
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name == "_head":
-            self._header.next = value
-            return
-        super().__setattr__(name, value)
 
     def __repr__(self) -> str:
         list_str = " <- ".join([repr(item) for item in self])
@@ -123,11 +113,13 @@ class LinkedQueue:
         >>> queue
         LinkedQueue('Python' <- 'Java' <- 'C')
         """
-        # create new tail node
         new_node = Node(item)
-        self._tail.next = new_node
-        self._tail = new_node
-
+        if self.is_empty():
+            # special case: queue was empty
+            self._head = self._tail = new_node
+        else:
+            self._tail.next = new_node
+            self._tail = new_node
         self._size += 1
 
     def dequeue(self) -> Any:
@@ -154,7 +146,7 @@ class LinkedQueue:
         self._size -= 1
         if self.is_empty():
             # special case: queue becomes empty
-            self._tail = self._header
+            self._tail = None
         return item
 
     def clear(self) -> None:
@@ -172,6 +164,5 @@ class LinkedQueue:
         >>> queue
         LinkedQueue()
         """
-        self._head = None
-        self._tail = self._header
+        self._head = self._tail = None
         self._size = 0
