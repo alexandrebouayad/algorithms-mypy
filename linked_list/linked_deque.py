@@ -1,4 +1,4 @@
-from linked_list._base import DoublyLinkedBase
+from linked_list.doubly_linked import DoublyLinkedBase
 
 
 class LinkedDeque(DoublyLinkedBase):
@@ -11,7 +11,7 @@ class LinkedDeque(DoublyLinkedBase):
         """
         if self.is_empty():
             raise IndexError("Deque is empty")
-        return self._header.next.element  # element of the head of the list
+        return self._head.element
 
     def last(self):
         """Return without removing the element at the back of the deque.
@@ -20,15 +20,15 @@ class LinkedDeque(DoublyLinkedBase):
         """
         if self.is_empty():
             raise IndexError("Deque is empty")
-        return self._trailer.prev.element  # element of tail of the list
+        return self._tail.element
 
     def insert_first(self, element):
         """Add element to the front of the deque."""
-        self._insert_between(element, self._header, self._header.next)
+        self._insert_between(element, self._header, self._head)
 
     def insert_last(self, element):
         """Add element to the back of the deque."""
-        self._insert_between(element, self._trailer.prev, self._trailer)
+        self._insert_between(element, self._tail, self._trailer)
 
     def delete_first(self):
         """Remove and return the element from the front of the deque.
@@ -37,7 +37,7 @@ class LinkedDeque(DoublyLinkedBase):
         """
         if self.is_empty():
             raise IndexError("Deque is empty")
-        return self._delete_node(self._header.next)  # remove head
+        return self._delete_node(self._head)  # remove head
 
     def delete_last(self):
         """Remove and return the element from the back of the deque.
@@ -46,4 +46,4 @@ class LinkedDeque(DoublyLinkedBase):
         """
         if self.is_empty():
             raise IndexError("Deque is empty")
-        return self._delete_node(self._trailer.prev)  # remove tail
+        return self._delete_node(self._tail)  # remove tail

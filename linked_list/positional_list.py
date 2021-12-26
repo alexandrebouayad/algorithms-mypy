@@ -1,6 +1,5 @@
-from xml.dom import ValidationErr
-
-from linked_list._base import DoublyLinkedBase, Position
+from linked_list import Position
+from linked_list.doubly_linked import DoublyLinkedBase
 
 
 class PositionalList(DoublyLinkedBase):
@@ -10,14 +9,15 @@ class PositionalList(DoublyLinkedBase):
         """Return position's node, or raise appropriate error if invalid."""
         if not isinstance(position, Position):
             raise TypeError(f"{position} is not of type Position")
-        if position == Position():  # position has been deprecated
+        if position == Position():
+            # position has been deprecated
             raise ValueError("invalid position")
         if position._list is not self:
             raise ValueError(f"{position} does not refer to {self}")
         return position._node
 
     def _make_position(self, node):
-        """Return a Position instance for given node, or None if sentinel."""
+        """Build and return a position for node, or None if sentinel node."""
         if node is self._header or node is self._trailer:
             return None
         else:
