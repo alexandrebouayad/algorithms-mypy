@@ -116,10 +116,10 @@ class LinkedQueue:
         new_node = Node(item)
         if self.is_empty():
             # special case: queue was empty
-            self._head = self._tail = new_node
+            self._head = new_node
         else:
             self._tail.next = new_node
-            self._tail = new_node
+        self._tail = new_node
         self._size += 1
 
     def dequeue(self) -> Any:
