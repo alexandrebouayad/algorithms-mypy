@@ -2,32 +2,36 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-from linked_list.singly_linked import Node
+import linked_list.single
 
 
-class LinkedQueue:
+class Queue:
     """
     Queue (FIFO) based on singly linked list.
 
-    >>> queue = LinkedQueue()
+    >>> queue = Queue()
     >>> queue.is_empty()
     True
     >>> queue.enqueue(5)
     >>> queue.enqueue(9)
-    >>> queue.enqueue('python')
+    >>> queue.enqueue('Python')
     >>> queue.is_empty()
     False
     >>> len(queue)
     3
     >>> queue
-    LinkedQueue(5 <- 9 <- 'python')
+    Queue(5 <- 9 <- 'Python')
+    >>> queue.peek()
+    5
+    >>> len(queue)
+    3
     >>> queue.dequeue()
     5
     >>> queue.enqueue('algorithms')
     >>> queue.dequeue()
     9
     >>> queue.dequeue()
-    'python'
+    'Python'
     >>> queue.dequeue()
     'algorithms'
     >>> queue.is_empty()
@@ -42,17 +46,17 @@ class LinkedQueue:
         """Create an empty queue."""
         self._head = None  # head node of the underlying list
         self._tail = None  # tail node of the underlying list
-        self._size = 0  # number of elements in the queue
+        self._size = 0  # number of items in the queue
 
     def __repr__(self) -> str:
         list_str = " <- ".join([repr(item) for item in self])
-        return f"LinkedQueue({list_str})"
+        return f"Queue({list_str})"
 
     def __iter__(self) -> Iterator:
         """
-        Generate iterator for traversing this queue
+        Generate iterator for traversing this queue.
 
-        >>> queue = LinkedQueue()
+        >>> queue = Queue()
         >>> queue.enqueue(0)
         >>> queue.enqueue(1)
         >>> queue.enqueue(2)
@@ -61,6 +65,9 @@ class LinkedQueue:
         0
         1
         2
+        >>> queue.clear()
+        >>> for item in queue:
+        ...     print(item)
         """
         node = self._head
         while node is not None:
@@ -69,11 +76,11 @@ class LinkedQueue:
 
     def __len__(self) -> int:
         """
-        Return the number of elements in this queue.
+        Return the number of items in this queue.
 
-        >>> queue = LinkedQueue()
-        >>> len(queue) == 0
-        True
+        >>> queue = Queue()
+        >>> len(queue)
+        0
         >>> queue.enqueue(0)
         >>> queue.enqueue(1)
         >>> queue.enqueue(2)
@@ -92,7 +99,7 @@ class LinkedQueue:
         """
         Return True if this queue is empty.
 
-        >>> queue = LinkedQueue()
+        >>> queue = Queue()
         >>> queue.is_empty()
         True
         >>> queue.enqueue(0)
@@ -106,16 +113,15 @@ class LinkedQueue:
         """
         Add item to the back of this queue.
 
-        >>> queue = LinkedQueue()
+        >>> queue = Queue()
         >>> queue.enqueue("Python")
         >>> queue.enqueue("Java")
         >>> queue.enqueue("C")
         >>> queue
-        LinkedQueue('Python' <- 'Java' <- 'C')
+        Queue('Python' <- 'Java' <- 'C')
         """
-        new_node = Node(item)
+        new_node = single.Node(item)
         if self.is_empty():
-            # special case: queue was empty
             self._head = new_node
         else:
             self._tail.next = new_node
@@ -127,7 +133,7 @@ class LinkedQueue:
 
         Raise IndexError if the queue is empty.
 
-        >>> queue = LinkedQueue()
+        >>> queue = Queue()
         >>> queue.dequeue()
         Traceback (most recent call last):
         ...
@@ -149,11 +155,32 @@ class LinkedQueue:
             self._tail = None
         return item
 
+    def peek(self) -> Any:
+        """
+        Return without removing the item at the front of this queue.
+
+        Raise IndexError if the queue is empty.
+
+        >>> queue = Queue()
+        >>> queue.peek()
+        Traceback (most recent call last):
+        ...
+        IndexError: peek from empty queue
+        >>> queue.enqueue("Java")
+        >>> queue.enqueue("C")
+        >>> queue.enqueue("Python")
+        >>> queue.peek()
+        'Java'
+        """
+        if self.is_empty():
+            raise IndexError("peek from empty queue")
+        return self._head.data
+
     def clear(self) -> None:
         """
-        Clear the queue.
+        Clear this queue.
 
-        >>> queue = LinkedQueue()
+        >>> queue = Queue()
         >>> queue.enqueue(0)
         >>> queue.enqueue(1)
         >>> queue.is_empty()
@@ -162,7 +189,7 @@ class LinkedQueue:
         >>> queue.is_empty()
         True
         >>> queue
-        LinkedQueue()
+        Queue()
         """
         self._head = self._tail = None
         self._size = 0

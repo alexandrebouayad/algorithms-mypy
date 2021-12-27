@@ -2,27 +2,31 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-from linked_list.singly_linked import Node
+import linked_list.single
 
 
-class LinkedStack:
+class Stack:
     """
     Stack (LIFO) based on singly linked list.
 
-    >>> stack = LinkedStack()
+    >>> stack = Stack()
     >>> stack.is_empty()
     True
     >>> stack.push(5)
     >>> stack.push(9)
-    >>> stack.push('python')
+    >>> stack.push('Python')
     >>> stack.is_empty()
     False
     >>> len(stack)
     3
     >>> stack
-    LinkedStack('python' -> 9 -> 5)
+    Stack('Python' -> 9 -> 5)
+    >>> stack.peek()
+    'Python'
+    >>> len(stack)
+    3
     >>> stack.pop()
-    'python'
+    'Python'
     >>> stack.push('algorithms')
     >>> stack.pop()
     'algorithms'
@@ -41,17 +45,17 @@ class LinkedStack:
     def __init__(self):
         """Create an empty stack."""
         self._head = None  # head node of the underlying list
-        self._size = 0  # number of elements in the stack
+        self._size = 0  # number of items in the stack
 
     def __repr__(self) -> str:
         list_str = " -> ".join([repr(item) for item in self])
-        return f"LinkedStack({list_str})"
+        return f"Stack({list_str})"
 
     def __iter__(self) -> Iterator:
         """
-        Generate iterator for traversing this stack
+        Generate iterator for traversing this stack.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.push(0)
         >>> stack.push(1)
         >>> stack.push(2)
@@ -60,6 +64,9 @@ class LinkedStack:
         2
         1
         0
+        >>> stack.clear()
+        >>> for item in stack:
+        ...     print(item)
         """
         node = self._head
         while node is not None:
@@ -68,11 +75,11 @@ class LinkedStack:
 
     def __len__(self) -> int:
         """
-        Return the number of elements in this stack.
+        Return the number of items in this stack.
 
-        >>> stack = LinkedStack()
-        >>> len(stack) == 0
-        True
+        >>> stack = Stack()
+        >>> len(stack)
+        0
         >>> stack.push(0)
         >>> stack.push(1)
         >>> stack.push(2)
@@ -91,7 +98,7 @@ class LinkedStack:
         """
         Return True if this stack is empty.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.is_empty()
         True
         >>> stack.push(0)
@@ -105,14 +112,14 @@ class LinkedStack:
         """
         Add item to the top of this stack.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.push("Python")
         >>> stack.push("Java")
         >>> stack.push("C")
         >>> stack
-        LinkedStack('C' -> 'Java' -> 'Python')
+        Stack('C' -> 'Java' -> 'Python')
         """
-        self._head = Node(item, next=self._head)
+        self._head = single.Node(item, next=self._head)
         self._size += 1
 
     def pop(self) -> Any:
@@ -121,7 +128,7 @@ class LinkedStack:
 
         Raise IndexError if the stack is empty.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.pop()
         Traceback (most recent call last):
         ...
@@ -142,11 +149,11 @@ class LinkedStack:
 
     def peek(self) -> Any:
         """
-        Return without removing the element at the top of this stack.
+        Return without removing the item at the top of this stack.
 
         Raise IndexError if the stack is empty.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.peek()
         Traceback (most recent call last):
         ...
@@ -163,9 +170,9 @@ class LinkedStack:
 
     def clear(self) -> None:
         """
-        Clear the stack.
+        Clear this stack.
 
-        >>> stack = LinkedStack()
+        >>> stack = Stack()
         >>> stack.push(0)
         >>> stack.push(1)
         >>> stack.is_empty()
@@ -174,7 +181,7 @@ class LinkedStack:
         >>> stack.is_empty()
         True
         >>> stack
-        LinkedStack()
+        Stack()
         """
         self._head = None
         self._size = 0

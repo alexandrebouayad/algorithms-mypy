@@ -5,10 +5,10 @@ from typing import Any
 
 class Node:
     """
-    Lightweight class for storing a single link node.
+    Lightweight class for storing single link node.
 
-    >>> Node("Hello, world!")
-    Node(Hello, world!)
+    >>> Node('Hello, world!')
+    Node('Hello, world!')
     >>> next_node = Node(1)
     >>> node = Node(0, next=next_node)
     >>> node, node.next
@@ -27,4 +27,5 @@ class Node:
         self.next = next
 
     def __repr__(self) -> str:
-        return f"Node({self.data})"
+        item_str = repr(self.data)
+        return f"Node({item_str})"
