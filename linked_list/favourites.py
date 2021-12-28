@@ -46,18 +46,13 @@ class FavouritesList(Generic[_T]):
     >>> lst
     [(5, 4), ('Python', 3)]
     >>> lst.access(9)
-    >>> for item in lst.top(2):
-    ...     print(item)
-    5
-    Python
+    >>> list(lst.top(2))
+    [5, 'Python']
     >>> lst.remove(5)
     >>> lst
     [('Python', 3), (9, 1)]
-    >>> for item in lst.top(3):
-    ...     pass
-    Traceback (most recent call last):
-        ...
-    IndexError: list has less than 3 items
+    >>> list(lst.top(3))
+    ['Python', 9]
     >>> lst.remove(5)
     >>> lst
     [('Python', 3), (9, 1)]
@@ -123,13 +118,13 @@ class FavouritesList(Generic[_T]):
 
     def top(self, k: int) -> Iterator[_T]:
         """
-        Generate iterator over top k items with respect to access counts.
+        Generate iterator over the top k items with respect to access counts.
 
-        Raise IndexError if list has less than k items.
+        If list has less than k items, iteration stops when list is exhausted.
         """
         position = self._list.first_position()
         for _ in range(k):
             if position is None:
-                raise IndexError(f"list has less than {k} items")
+                break
             yield position.item.value
             position = self._list.position_after(position)

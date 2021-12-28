@@ -39,18 +39,13 @@ class FavouritesListMTF(FavouritesList[_T]):
     >>> lst
     [(5, 4), ('Python', 3)]
     >>> lst.access(9)
-    >>> for item in lst.top(2):
-    ...     print(item)
-    5
-    Python
+    >>> list(lst.top(2))
+    [5, 'Python']
     >>> lst.remove(5)
     >>> lst
     [(9, 1), ('Python', 3)]
-    >>> for item in lst.top(3):
-    ...     pass
-    Traceback (most recent call last):
-        ...
-    IndexError: list has less than 3 items
+    >>> list(lst.top(3))
+    ['Python', 9]
     >>> lst.remove(5)
     >>> lst
     [(9, 1), ('Python', 3)]
@@ -71,9 +66,9 @@ class FavouritesListMTF(FavouritesList[_T]):
     # override: traverse k times the list to find k top items
     def top(self, k: int) -> Iterator[_T]:
         """
-        Generate iterator over top k items with respect to access counts.
+        Generate iterator over the top k items with respect to access counts.
 
-        Raise IndexError if list has less than k items.
+        If list has less than k items, iteration stops when list is exhausted.
         """
         # clone original list
         self_clone: PositionalList[_Item[_T]] = PositionalList()
@@ -84,7 +79,7 @@ class FavouritesListMTF(FavouritesList[_T]):
             # traverse cloned list, find and remove item with largest access count
             highest = self_clone.first_position()
             if highest is None:
-                raise IndexError(f"list has less than {k} items")
+                break
             walker = self_clone.position_after(highest)
             while walker is not None:
                 if walker.item.count > highest.item.count:
