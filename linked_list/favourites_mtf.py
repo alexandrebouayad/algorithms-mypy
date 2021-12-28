@@ -5,10 +5,10 @@ from typing import Iterator, TypeVar
 from linked_list.favourites import FavouritesList, _Item
 from linked_list.positional import Position, PositionalList
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class FavouritesListMTF(FavouritesList[T]):
+class FavouritesListMTF(FavouritesList[_T]):
     """
     List of items with access counts sorted using move-to-front heuristic.
 
@@ -63,20 +63,20 @@ class FavouritesListMTF(FavouritesList[T]):
     """
 
     # override: use move-to-front heuristic
-    def _move_up(self, position: Position[_Item[T]]) -> None:
+    def _move_up(self, position: Position[_Item[_T]]) -> None:
         """Move the item located at position to the front of this list."""
         self._list.insert_first(position.item)
         self._list.remove(position)
 
     # override: traverse k times the list to find k top items
-    def top(self, k: int) -> Iterator[T]:
+    def top(self, k: int) -> Iterator[_T]:
         """
         Generate iterator over top k items with respect to access counts.
 
         Raise IndexError if list has less than k items.
         """
         # clone original list
-        self_clone: PositionalList[_Item[T]] = PositionalList()
+        self_clone: PositionalList[_Item[_T]] = PositionalList()
         for item in self._list:
             self_clone.insert_last(item)
 

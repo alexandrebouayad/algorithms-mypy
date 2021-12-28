@@ -4,18 +4,18 @@ from typing import Generic, Iterator, TypeVar
 
 from linked_list.positional import Position, PositionalList
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class _Item(Generic[T]):
+class _Item(Generic[_T]):
     __slots__ = "value", "count"  # improve memory usage
 
-    def __init__(self, value: T) -> None:
+    def __init__(self, value: _T) -> None:
         self.value = value  # value of the item
         self.count = 0  # access count
 
 
-class FavouritesList(Generic[T]):
+class FavouritesList(Generic[_T]):
     """
     List of items sorted by access frequencies in non-increasing order.
 
@@ -71,12 +71,12 @@ class FavouritesList(Generic[T]):
 
     def __init__(self) -> None:
         """Create an empty list of favourites."""
-        self._list: PositionalList[_Item[T]] = PositionalList()
+        self._list: PositionalList[_Item[_T]] = PositionalList()
 
     def __repr__(self) -> str:
         return repr(list(self))
 
-    def __iter__(self) -> Iterator[tuple[T, int]]:
+    def __iter__(self) -> Iterator[tuple[_T, int]]:
         """Return iterator over items with access counts."""
         return ((item.value, item.count) for item in self._list)
 
@@ -84,14 +84,14 @@ class FavouritesList(Generic[T]):
         """Return the number of items in this favourites list."""
         return len(self._list)
 
-    def _find_position(self, item: T) -> Position[_Item[T]] | None:
+    def _find_position(self, item: _T) -> Position[_Item[_T]] | None:
         """Search for item and return its position, or None if not found."""
         position = self._list.first_position()
         while position is not None and position.item.value != item:
             position = self._list.position_after(position)
         return position
 
-    def _move_up(self, position: Position[_Item[T]]) -> None:
+    def _move_up(self, position: Position[_Item[_T]]) -> None:
         """Move up the item located at position based on access counts."""
         walker = position
         while (
@@ -105,7 +105,7 @@ class FavouritesList(Generic[T]):
         """Return True if this list is empty."""
         return self._list.is_empty()
 
-    def access(self, item: T) -> None:
+    def access(self, item: _T) -> None:
         """Access item and increase its access count."""
         position = self._find_position(item)
         if position is None:
@@ -114,14 +114,14 @@ class FavouritesList(Generic[T]):
         position.item.count += 1
         self._move_up(position)
 
-    def remove(self, item: T) -> None:
+    def remove(self, item: _T) -> None:
         """Remove item from this list."""
         position = self._find_position(item)
         if position is not None:
             # remove item if present
             self._list.remove(position)
 
-    def top(self, k: int) -> Iterator[T]:
+    def top(self, k: int) -> Iterator[_T]:
         """
         Generate iterator over top k items with respect to access counts.
 

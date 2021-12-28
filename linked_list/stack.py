@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from typing import Generic, Iterator, TypeVar
 
-from typing_extensions import TypeGuard
-
 from linked_list._single import Node as _Node
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class Stack(Generic[T]):
+class Stack(Generic[_T]):
     """
     Stack (LIFO) based on singly linked list.
 
@@ -48,14 +46,14 @@ class Stack(Generic[T]):
 
     def __init__(self) -> None:
         """Initialise empty stack."""
-        self._head: _Node[T] | None = None  # head node of the underlying list
+        self._head: _Node[_T] | None = None  # head node of the underlying list
         self._size = 0  # number of items in the stack
 
     def __repr__(self) -> str:
         list_str = " -> ".join([repr(item) for item in self])
         return f"Stack({list_str})"
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_T]:
         """
         Generate iterator for traversing this stack.
 
@@ -112,7 +110,7 @@ class Stack(Generic[T]):
         """
         return self._size == 0
 
-    def push(self, item: T) -> None:
+    def push(self, item: _T) -> None:
         """
         Add item to the top of this stack.
 
@@ -126,7 +124,7 @@ class Stack(Generic[T]):
         self._head = _Node(item, next=self._head)
         self._size += 1
 
-    def pop(self) -> T:
+    def pop(self) -> _T:
         """
         Remove and return the item from the top of this stack.
 
@@ -151,7 +149,7 @@ class Stack(Generic[T]):
         self._size -= 1
         return top_item
 
-    def peek(self) -> T:
+    def peek(self) -> _T:
         """
         Return without removing the item at the top of this stack.
 

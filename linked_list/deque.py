@@ -6,10 +6,10 @@ from linked_list._double import DoublyLinkedBase as _DoublyLinkedBase
 from linked_list._double import Header as _Header
 from linked_list._double import Trailer as _Trailer
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class Deque(_DoublyLinkedBase[T]):
+class Deque(_DoublyLinkedBase[_T]):
     """
     Deque (double-ended queue) based on doubly linked list.
 
@@ -48,7 +48,7 @@ class Deque(_DoublyLinkedBase[T]):
     IndexError: remove from empty deque
     """
 
-    def insert_first(self, item: T) -> None:
+    def insert_first(self, item: _T) -> None:
         """
         Add item to the front of this deque.
 
@@ -61,7 +61,7 @@ class Deque(_DoublyLinkedBase[T]):
         """
         self._insert(item, self._header, self._header.next)
 
-    def insert_last(self, item: T) -> None:
+    def insert_last(self, item: _T) -> None:
         """
         Add item to the front of this deque.
 
@@ -74,7 +74,7 @@ class Deque(_DoublyLinkedBase[T]):
         """
         self._insert(item, self._trailer.prev, self._trailer)
 
-    def remove_first(self) -> T:
+    def remove_first(self) -> _T:
         """
         Remove and return the item from the front of this deque.
 
@@ -97,7 +97,7 @@ class Deque(_DoublyLinkedBase[T]):
             raise IndexError("remove from empty deque")
         return self._remove(head)
 
-    def remove_last(self) -> T:
+    def remove_last(self) -> _T:
         """Remove and return the item from the back of this deque.
 
         Raise IndexError if the deque is empty.
@@ -118,7 +118,7 @@ class Deque(_DoublyLinkedBase[T]):
             raise IndexError("remove from empty deque")
         return self._remove(tail)
 
-    def peek_first(self) -> T:
+    def peek_first(self) -> _T:
         """Return without removing the item at the front of this deque.
 
         Raise IndexError if the deque is empty.
@@ -138,7 +138,7 @@ class Deque(_DoublyLinkedBase[T]):
             raise IndexError("peek from empty deque")
         return head.data
 
-    def peek_last(self) -> T:
+    def peek_last(self) -> _T:
         """Return without removing the item at the back of this deque.
 
         Raise IndexError if the deque is empty.

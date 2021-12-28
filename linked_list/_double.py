@@ -2,30 +2,33 @@ from __future__ import annotations
 
 from typing import Generic, Iterator, TypeVar
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class Header(Generic[T]):
+class Header(Generic[_T]):
     __slots__ = "next"  # improve memory usage
 
     def __init__(self) -> None:
-        self.next: Node[T] | Trailer[T]
+        self.next: Node[_T] | Trailer[_T]
 
 
-class Trailer(Generic[T]):
+class Trailer(Generic[_T]):
     __slots__ = "prev"  # improve memory usage
 
     def __init__(self) -> None:
-        self.prev: Node[T] | Header[T]
+        self.prev: Node[_T] | Header[_T]
 
 
-class Node(Generic[T]):
+class Node(Generic[_T]):
     """Double link node."""
 
     __slots__ = "data", "prev", "next", "deprecated"  # improve memory usage
 
     def __init__(
-        self, data: T, prev: Node[T] | Header[T], next: Node[T] | Trailer[T]
+        self,
+        data: _T,
+        prev: Node[_T] | Header[_T],
+        next: Node[_T] | Trailer[_T],
     ):
         self.data = data
         self.prev = prev
@@ -33,7 +36,7 @@ class Node(Generic[T]):
         self.deprecated = False
 
 
-class DoublyLinkedBase(Generic[T]):
+class DoublyLinkedBase(Generic[_T]):
     """
     Doubly linked list.
 
@@ -75,8 +78,8 @@ class DoublyLinkedBase(Generic[T]):
     def __init__(self) -> None:
         """Initialise empty list."""
         # set sentinel nodes
-        self._header: Header[T] = Header()
-        self._trailer: Trailer[T] = Trailer()
+        self._header: Header[_T] = Header()
+        self._trailer: Trailer[_T] = Trailer()
         self._header.next = self._trailer
         self._trailer.prev = self._header
 
@@ -87,7 +90,7 @@ class DoublyLinkedBase(Generic[T]):
         list_str = " <-> ".join([repr(item) for item in self])
         return f"{class_name}({list_str})"
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_T]:
         """
         Generate iterator for traversing this list.
 
@@ -143,10 +146,10 @@ class DoublyLinkedBase(Generic[T]):
 
     def _insert(
         self,
-        item: T,
-        prev_node: Node[T] | Header[T],
-        next_node: Node[T] | Trailer[T],
-    ) -> Node[T]:
+        item: _T,
+        prev_node: Node[_T] | Header[_T],
+        next_node: Node[_T] | Trailer[_T],
+    ) -> Node[_T]:
         """
         Insert item between prev_node and next_node, and return new node.
 
@@ -163,7 +166,7 @@ class DoublyLinkedBase(Generic[T]):
         self._size += 1
         return new_node
 
-    def _remove(self, node: Node[T]) -> T:
+    def _remove(self, node: Node[_T]) -> _T:
         """
         Delete node from this list and return node's item.
 

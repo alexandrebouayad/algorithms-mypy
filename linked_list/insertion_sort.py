@@ -8,17 +8,17 @@ from linked_list.positional import PositionalList
 
 class _Comparable(Protocol):
     @abstractmethod
-    def __lt__(self: T, other: T) -> bool:
+    def __lt__(self: _T, other: _T) -> bool:
         pass
 
-    def __le__(self: T, other: T) -> bool:
+    def __le__(self: _T, other: _T) -> bool:
         return self < other or self == other
 
 
-T = TypeVar("T", bound=_Comparable)
+_T = TypeVar("_T", bound=_Comparable)
 
 
-def insertion_sort(lst: PositionalList[T]) -> None:
+def insertion_sort(lst: PositionalList[_T]) -> None:
     """
     Sort positional list of comparable items in non-decreasing order.
 

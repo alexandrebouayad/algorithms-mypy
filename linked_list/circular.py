@@ -4,10 +4,10 @@ from typing import Generic, Iterator, TypeVar
 
 from linked_list._single import Node as _Node
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class CircularQueue(Generic[T]):
+class CircularQueue(Generic[_T]):
     """
     Circular queue (FIFO) based on singly linked list.
 
@@ -49,14 +49,14 @@ class CircularQueue(Generic[T]):
 
     def __init__(self) -> None:
         """Initialise empty queue."""
-        self._tail: _Node[T] | None = None  # tail node of the underlying list
+        self._tail: _Node[_T] | None = None  # tail node of the underlying list
         self._size: int = 0  # number of items in the queue
 
     def __repr__(self) -> str:
         list_str = " <- ".join([repr(item) for item in self])
         return f"CircularQueue({list_str})"
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_T]:
         """
         Generate iterator for traversing this queue.
 
@@ -118,7 +118,7 @@ class CircularQueue(Generic[T]):
         """
         return self._size == 0
 
-    def enqueue(self, item: T) -> None:
+    def enqueue(self, item: _T) -> None:
         """
         Add item to the back of this queue.
 
@@ -139,7 +139,7 @@ class CircularQueue(Generic[T]):
         self._tail = new_node
         self._size += 1
 
-    def dequeue(self) -> T:
+    def dequeue(self) -> _T:
         """Remove and return item from the front of this queue.
 
         Raise IndexError if the queue is empty.
@@ -193,7 +193,7 @@ class CircularQueue(Generic[T]):
             return
         self._tail = self._tail.next  # former head becomes new tail
 
-    def peek(self) -> T:
+    def peek(self) -> _T:
         """
         Return without removing the item at the front of this queue.
 
