@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TypeVar
 
-import linked_list.double as double
+from linked_list._double import DoublyLinkedBase as _DoublyLinkedBase
+from linked_list._double import Header as _Header
+from linked_list._double import Trailer as _Trailer
+
+T = TypeVar("T")
 
 
-class Deque(double.DoublyLinkedBase):
+class Deque(_DoublyLinkedBase[T]):
     """
     Deque (double-ended queue) based on doubly linked list.
 
@@ -44,7 +48,7 @@ class Deque(double.DoublyLinkedBase):
     IndexError: remove from empty deque
     """
 
-    def insert_first(self, item: Any) -> None:
+    def insert_first(self, item: T) -> None:
         """
         Add item to the front of this deque.
 
@@ -55,9 +59,9 @@ class Deque(double.DoublyLinkedBase):
         >>> deque
         Deque('C' <-> 'Java' <-> 'Python')
         """
-        self._insert(item, self._header, self._head)
+        self._insert(item, self._header, self._header.next)
 
-    def insert_last(self, item: Any) -> None:
+    def insert_last(self, item: T) -> None:
         """
         Add item to the front of this deque.
 
@@ -68,9 +72,9 @@ class Deque(double.DoublyLinkedBase):
         >>> deque
         Deque('Python' <-> 'Java' <-> 'C')
         """
-        self._insert(item, self._tail, self._trailer)
+        self._insert(item, self._trailer.prev, self._trailer)
 
-    def remove_first(self) -> Any:
+    def remove_first(self) -> T:
         """
         Remove and return the item from the front of this deque.
 
@@ -88,11 +92,12 @@ class Deque(double.DoublyLinkedBase):
         >>> deque.remove_first()
         1
         """
-        if self.is_empty():
+        head = self._header.next  # head node or trailer
+        if isinstance(head, _Trailer):
             raise IndexError("remove from empty deque")
-        return self._remove(self._head)
+        return self._remove(head)
 
-    def remove_last(self) -> Any:
+    def remove_last(self) -> T:
         """Remove and return the item from the back of this deque.
 
         Raise IndexError if the deque is empty.
@@ -108,11 +113,12 @@ class Deque(double.DoublyLinkedBase):
         >>> deque.remove_last()
         0
         """
-        if self.is_empty():
+        tail = self._trailer.prev  # tail node or header
+        if isinstance(tail, _Header):
             raise IndexError("remove from empty deque")
-        return self._remove(self._tail)
+        return self._remove(tail)
 
-    def peek_first(self) -> Any:
+    def peek_first(self) -> T:
         """Return without removing the item at the front of this deque.
 
         Raise IndexError if the deque is empty.
@@ -127,11 +133,12 @@ class Deque(double.DoublyLinkedBase):
         >>> deque.peek_first()
         'Python'
         """
-        if self.is_empty():
+        head = self._header.next  # head node or trailer
+        if isinstance(head, _Trailer):
             raise IndexError("peek from empty deque")
-        return self._head.data
+        return head.data
 
-    def peek_last(self) -> Any:
+    def peek_last(self) -> T:
         """Return without removing the item at the back of this deque.
 
         Raise IndexError if the deque is empty.
@@ -146,6 +153,7 @@ class Deque(double.DoublyLinkedBase):
         >>> deque.peek_last()
         'Python'
         """
-        if self.is_empty():
+        tail = self._trailer.prev  # tail node or header
+        if isinstance(tail, _Header):
             raise IndexError("peek from empty deque")
-        return self._tail.data
+        return tail.data

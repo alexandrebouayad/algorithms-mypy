@@ -1,20 +1,21 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Generic, Iterator, TypeVar
 
-import linked_list.double as double
-import linked_list.positional as positional
+from linked_list.positional import Position, PositionalList
+
+T = TypeVar("T")
 
 
-class _Item:
+class _Item(Generic[T]):
     __slots__ = "value", "count"  # improve memory usage
 
-    def __init__(self, value):
+    def __init__(self, value: T) -> None:
         self.value = value  # value of the item
         self.count = 0  # access count
 
 
-class FavouritesList:
+class FavouritesList(Generic[T]):
     """
     List of items sorted by access frequencies in non-increasing order.
 
@@ -53,7 +54,7 @@ class FavouritesList:
     >>> lst
     [('Python', 3), (9, 1)]
     >>> for item in lst.top(3):
-    ...     break
+    ...     pass
     Traceback (most recent call last):
         ...
     IndexError: list has less than 3 items
@@ -68,16 +69,14 @@ class FavouritesList:
     True
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create an empty list of favourites."""
-        self._list = (
-            positional.PositionalList()
-        )  # will contain _Item instances
+        self._list: PositionalList[_Item[T]] = PositionalList()
 
     def __repr__(self) -> str:
         return repr(list(self))
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[tuple[T, int]]:
         """Return iterator over items with access counts."""
         return ((item.value, item.count) for item in self._list)
 
@@ -85,22 +84,20 @@ class FavouritesList:
         """Return the number of items in this favourites list."""
         return len(self._list)
 
-    def _find_position(self, item: _Item) -> double.Position:
-        """Search for item and return its position or None if not found."""
+    def _find_position(self, item: T) -> Position[_Item[T]] | None:
+        """Search for item and return its position, or None if not found."""
         position = self._list.first_position()
         while position is not None and position.item.value != item:
             position = self._list.position_after(position)
         return position
 
-    def _move_up(self, position: double.Position) -> None:
+    def _move_up(self, position: Position[_Item[T]]) -> None:
         """Move up the item located at position based on access counts."""
         walker = position
-        count = position.item.count
         while (
-            walker != self._list.first_position()
-            and self._list.position_before(walker).item.count < count
-        ):
-            walker = self._list.position_before(walker)
+            before_walker := self._list.position_before(walker)
+        ) is not None and before_walker.item.count < position.item.count:
+            walker = before_walker
         self._list.insert_before(walker, position.item)
         self._list.remove(position)
 
@@ -108,7 +105,7 @@ class FavouritesList:
         """Return True if this list is empty."""
         return self._list.is_empty()
 
-    def access(self, item: Any) -> None:
+    def access(self, item: T) -> None:
         """Access item and increase its access count."""
         position = self._find_position(item)
         if position is None:
@@ -117,22 +114,22 @@ class FavouritesList:
         position.item.count += 1
         self._move_up(position)
 
-    def remove(self, item: Any) -> None:
+    def remove(self, item: T) -> None:
         """Remove item from this list."""
         position = self._find_position(item)
         if position is not None:
             # remove item if present
             self._list.remove(position)
 
-    def top(self, k: int) -> Iterator:
+    def top(self, k: int) -> Iterator[T]:
         """
         Generate iterator over top k items with respect to access counts.
 
         Raise IndexError if list has less than k items.
         """
-        if k > len(self):
-            raise IndexError(f"list has less than {k} items")
         position = self._list.first_position()
         for _ in range(k):
+            if position is None:
+                raise IndexError(f"list has less than {k} items")
             yield position.item.value
             position = self._list.position_after(position)

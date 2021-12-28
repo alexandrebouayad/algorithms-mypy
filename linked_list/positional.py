@@ -1,11 +1,64 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Generic, TypeVar
 
-import linked_list.double as double
+from linked_list._double import DoublyLinkedBase as _DoublyLinkedBase
+from linked_list._double import Header as _Header
+from linked_list._double import Node as _Node
+from linked_list._double import Trailer as _Trailer
+
+T = TypeVar("T")
 
 
-class PositionalList(double.DoublyLinkedBase):
+class Position(Generic[T]):
+    """
+    Abstraction representing the location of a single item.
+    Note that two positions may represent the same inherent location in the
+    list. Use 'p == q' rather than 'p is q' when testing equivalence of
+    positions.
+    >>> lst = _DoublyLinkedBase()
+    >>> node_0 = lst._insert(0, lst._header, lst._trailer)
+    >>> node_1 = lst._insert(1, node_0, lst._trailer)
+    >>> node_2 = lst._insert(0, node_1, lst._trailer)
+    >>> position_0 = Position(node_0, lst)
+    >>> position_0
+    Position(0)
+    >>> position_2 = Position(node_2, lst)
+    >>> position_0 == position_2
+    False
+    >>> new_position_0 = Position(node_0, lst)
+    >>> position_0 == new_position_0
+    True
+    >>> new_lst = _DoublyLinkedBase()
+    >>> new_node_0 = new_lst._insert(0, lst._header, lst._trailer)
+    >>> new_position_0 = Position(node_0, new_lst)
+    >>> position_0 == new_position_0
+    False
+    """
+
+    __slots__ = "_node", "_list"  # improve memory usage
+
+    def __init__(self, node: _Node[T], list: _DoublyLinkedBase[T]) -> None:
+        self._node = node
+        self._list = list
+
+    @property
+    def item(self) -> T:
+        """Return the item stored at this position."""
+        return self._node.data
+
+    def __repr__(self) -> str:
+        item_repr = repr(self.item)
+        return f"Position({item_repr})"
+
+    def __eq__(self, other: object) -> bool:
+        """Return True if the two positions represent the same location."""
+        if not isinstance(other, Position):
+            return False
+        return self._list == other._list and self._node == other._node
+
+
+class PositionalList(_DoublyLinkedBase[T]):
     """
     Positional list based on doubly linked list.
 
@@ -61,83 +114,87 @@ class PositionalList(double.DoublyLinkedBase):
     True
     """
 
-    def _validate(self, position: double.Position) -> double.Node:
+    def _validate(self, position: Position[T]) -> _Node[T]:
         """Return node at position or raise IndexError if position is invalid."""
         if position._list is not self:
             # position does not refer to this list
             raise IndexError("invalid position")
-        if position._node.prev is None or position._node.next is None:
-            # node had been deprecated
+        if position._node.deprecated:
             raise IndexError("invalid position")
         return position._node
 
-    def _make_position(self, node: double.Node) -> double.Position:
-        """Return a position for node or None if sentinel node."""
-        if node in (self._header, self._trailer):
-            return None
-        return double.Position(node, list=self)
+    def _make_position(self, node: _Node[T]) -> Position[T]:
+        """Return a position for node."""
+        return Position(node, self)
 
     # override method of DoublyLinkedBase; return a position rather than a node
-    def _insert(
+    def _positional_insert(
         self,
-        item: Any,
-        prev_node: double.Node,
-        next_node: double.Node,
-    ) -> double.Position:
+        item: T,
+        prev_node: _Node[T] | _Header[T],
+        next_node: _Node[T] | _Trailer[T],
+    ) -> Position[T]:
         """Insert item between prev_node and next_node, and return new position."""
         node = super()._insert(item, prev_node, next_node)
         return self._make_position(node)
 
-    def insert_first(self, item: Any) -> double.Position:
+    def insert_first(self, item: T) -> Position[T]:
         """Insert item at the front of this list and return new position."""
-        return self._insert(item, self._header, self._header.next)
+        return self._positional_insert(item, self._header, self._header.next)
 
-    def insert_last(self, item: Any) -> double.Position:
+    def insert_last(self, item: T) -> Position[T]:
         """Insert item at the back of this list and return new position."""
-        return self._insert(item, self._trailer.prev, self._trailer)
+        return self._positional_insert(item, self._trailer.prev, self._trailer)
 
-    def insert_before(
-        self, position: double.Position, item: Any
-    ) -> double.Position:
+    def insert_before(self, position: Position[T], item: T) -> Position[T]:
         """Insert item before given position and return new position."""
         node = self._validate(position)
-        return self._insert(item, node.prev, node)
+        return self._positional_insert(item, node.prev, node)
 
-    def insert_after(
-        self, position: double.Position, item: Any
-    ) -> double.Position:
+    def insert_after(self, position: Position[T], item: T) -> Position[T]:
         """Insert item after given position and return new position."""
         node = self._validate(position)
-        return self._insert(item, node, node.next)
+        return self._positional_insert(item, node, node.next)
 
-    def remove(self, position: double.Position) -> Any:
+    def remove(self, position: Position[T]) -> T:
         """Remove and return item at position."""
         node = self._validate(position)
+        node.deprecated = True
         return self._remove(node)
 
-    def replace(self, position: double.Position, item: Any) -> Any:
+    def replace(self, position: Position[T], item: T) -> T:
         """Place item at position and return old item."""
         node = self._validate(position)
         old_item = position.item
         node.data = item
         return old_item
 
-    def first_position(self) -> double.Position:
-        """Return the first position in this list or None if the list is empty."""
-        return self._make_position(self._header.next)
+    def first_position(self) -> Position[T] | None:
+        """Return the first position in this list, or None if the list is empty."""
+        head = self._header.next  # head node or trailer
+        if isinstance(head, _Trailer):
+            return None
+        return self._make_position(head)
 
-    def last_position(self) -> double.Position:
-        """Return the last Position in this list or None if the list is empty."""
-        return self._make_position(self._trailer.prev)
+    def last_position(self) -> Position[T] | None:
+        """Return the last position in this list, or None if the list is empty."""
+        tail = self._trailer.prev  # tail node or header
+        if isinstance(tail, _Header):
+            return None
+        return self._make_position(tail)
 
-    def position_before(self, position: double.Position) -> double.Position:
+    def position_before(self, position: Position[T]) -> Position[T] | None:
         """Return the position just before given position, or None if given
         position is first."""
         node = self._validate(position)
+        if isinstance(node.prev, _Header):
+            return None
         return self._make_position(node.prev)
 
-    def position_after(self, position: double.Position) -> double.Position:
+    def position_after(self, position: Position[T]) -> Position[T] | None:
         """Return the position just after given position, or None if given
         position is last."""
         node = self._validate(position)
+        if isinstance(node.next, _Trailer):
+            return None
         return self._make_position(node.next)

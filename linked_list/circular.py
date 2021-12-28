@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Generic, Iterator, TypeVar
 
-import linked_list.single
+from linked_list._single import Node as _Node
+
+T = TypeVar("T")
 
 
-class CircularQueue:
+class CircularQueue(Generic[T]):
     """
     Circular queue (FIFO) based on singly linked list.
 
@@ -45,18 +47,16 @@ class CircularQueue:
     IndexError: dequeue from empty queue
     """
 
-    def __init__(self):
-        """Create an empty queue."""
-        self._tail: single.Node | None = (
-            None  # tail node of the underlying list
-        )
+    def __init__(self) -> None:
+        """Initialise empty queue."""
+        self._tail: _Node[T] | None = None  # tail node of the underlying list
         self._size: int = 0  # number of items in the queue
 
     def __repr__(self) -> str:
         list_str = " <- ".join([repr(item) for item in self])
         return f"CircularQueue({list_str})"
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[T]:
         """
         Generate iterator for traversing this queue.
 
@@ -73,10 +73,12 @@ class CircularQueue:
         >>> for item in queue:
         ...     print(item)
         """
-        if self.is_empty():
+        if self._tail is None:
+            # list is empty
             return
         node = self._tail.next  # head node
         while node is not self._tail:
+            assert node is not None  # helper for static type checking
             yield node.data
             node = node.next
         yield node.data
@@ -116,7 +118,7 @@ class CircularQueue:
         """
         return self._size == 0
 
-    def enqueue(self, item: Any) -> None:
+    def enqueue(self, item: T) -> None:
         """
         Add item to the back of this queue.
 
@@ -127,8 +129,9 @@ class CircularQueue:
         >>> queue
         CircularQueue('Python' <- 'Java' <- 'C')
         """
-        new_node = single.Node(item)
-        if self.is_empty():
+        new_node = _Node(item)
+        if self._tail is None:
+            # list is empty
             new_node.next = new_node  # set circularity
         else:
             new_node.next = self._tail.next  # link new node to head
@@ -136,7 +139,7 @@ class CircularQueue:
         self._tail = new_node
         self._size += 1
 
-    def dequeue(self) -> Any:
+    def dequeue(self) -> T:
         """Remove and return item from the front of this queue.
 
         Raise IndexError if the queue is empty.
@@ -153,14 +156,15 @@ class CircularQueue:
         >>> queue.dequeue()
         1
         """
-        if self.is_empty():
+        if self._tail is None:
             raise IndexError("dequeue from empty queue")
         head = self._tail.next
+        assert head is not None  # helper for static type checking
         item = head.data  # item to return
         self._tail.next = head.next  # shift head
         self._size -= 1
         if self.is_empty():
-            # special case: queue becomes empty
+            # queue becomes empty
             self._tail = None
         return item
 
@@ -184,9 +188,12 @@ class CircularQueue:
         >>> queue
         CircularQueue(0 <- 1 <- 2)
         """
+        if self._tail is None:
+            # if list is empty, do nothing
+            return
         self._tail = self._tail.next  # former head becomes new tail
 
-    def peek(self) -> Any:
+    def peek(self) -> T:
         """
         Return without removing the item at the front of this queue.
 
@@ -203,9 +210,11 @@ class CircularQueue:
         >>> queue.peek()
         'Java'
         """
-        if self.is_empty():
+        if self._tail is None:
             raise IndexError("peek from empty queue")
-        return self._tail.next.data
+        head = self._tail.next
+        assert head is not None  # helper for static type checking
+        return head.data
 
     def clear(self) -> None:
         """

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Generic, Iterator, TypeVar
 
-import linked_list.single
+from typing_extensions import TypeGuard
+
+from linked_list._single import Node as _Node
+
+T = TypeVar("T")
 
 
-class Stack:
+class Stack(Generic[T]):
     """
     Stack (LIFO) based on singly linked list.
 
@@ -42,16 +46,16 @@ class Stack:
     IndexError: pop from empty stack
     """
 
-    def __init__(self):
-        """Create an empty stack."""
-        self._head = None  # head node of the underlying list
+    def __init__(self) -> None:
+        """Initialise empty stack."""
+        self._head: _Node[T] | None = None  # head node of the underlying list
         self._size = 0  # number of items in the stack
 
     def __repr__(self) -> str:
         list_str = " -> ".join([repr(item) for item in self])
         return f"Stack({list_str})"
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[T]:
         """
         Generate iterator for traversing this stack.
 
@@ -108,7 +112,7 @@ class Stack:
         """
         return self._size == 0
 
-    def push(self, item: Any) -> None:
+    def push(self, item: T) -> None:
         """
         Add item to the top of this stack.
 
@@ -119,10 +123,10 @@ class Stack:
         >>> stack
         Stack('C' -> 'Java' -> 'Python')
         """
-        self._head = single.Node(item, next=self._head)
+        self._head = _Node(item, next=self._head)
         self._size += 1
 
-    def pop(self) -> Any:
+    def pop(self) -> T:
         """
         Remove and return the item from the top of this stack.
 
@@ -140,14 +144,14 @@ class Stack:
         >>> stack.pop()
         0
         """
-        if self.is_empty():
+        if self._head is None:
             raise IndexError("pop from empty stack")
         top_item = self._head.data
         self._head = self._head.next  # shift head
         self._size -= 1
         return top_item
 
-    def peek(self) -> Any:
+    def peek(self) -> T:
         """
         Return without removing the item at the top of this stack.
 
@@ -164,7 +168,7 @@ class Stack:
         >>> stack.peek()
         'Python'
         """
-        if self.is_empty():
+        if self._head is None:
             raise IndexError("peek from empty stack")
         return self._head.data
 

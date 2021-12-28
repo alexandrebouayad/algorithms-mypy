@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Iterator
+from typing import Iterator, TypeVar
 
-import linked_list.double as double
-import linked_list.favourites as favourites
-import linked_list.positional as positional
+from linked_list.favourites import FavouritesList, _Item
+from linked_list.positional import Position, PositionalList
+
+T = TypeVar("T")
 
 
-class FavouritesListMTF(favourites.FavouritesList):
+class FavouritesListMTF(FavouritesList[T]):
     """
     List of items with access counts sorted using move-to-front heuristic.
 
@@ -46,7 +47,7 @@ class FavouritesListMTF(favourites.FavouritesList):
     >>> lst
     [(9, 1), ('Python', 3)]
     >>> for item in lst.top(3):
-    ...     break
+    ...     pass
     Traceback (most recent call last):
         ...
     IndexError: list has less than 3 items
@@ -62,32 +63,32 @@ class FavouritesListMTF(favourites.FavouritesList):
     """
 
     # override: use move-to-front heuristic
-    def _move_up(self, position: double.Position) -> None:
+    def _move_up(self, position: Position[_Item[T]]) -> None:
         """Move the item located at position to the front of this list."""
         self._list.insert_first(position.item)
         self._list.remove(position)
 
     # override: traverse k times the list to find k top items
-    def top(self, k: int) -> Iterator:
+    def top(self, k: int) -> Iterator[T]:
         """
         Generate iterator over top k items with respect to access counts.
 
         Raise IndexError if list has less than k items.
         """
-        if k > len(self):
-            raise IndexError(f"list has less than {k} items")
-
         # clone original list
-        self_clone = positional.PositionalList()
+        self_clone: PositionalList[_Item[T]] = PositionalList()
         for item in self._list:
             self_clone.insert_last(item)
 
         for _ in range(k):
             # traverse cloned list, find and remove item with largest access count
-            highest = walker = self_clone.first_position()
-            while walker != self_clone.last_position():
-                walker = self_clone.position_after(walker)
+            highest = self_clone.first_position()
+            if highest is None:
+                raise IndexError(f"list has less than {k} items")
+            walker = self_clone.position_after(highest)
+            while walker is not None:
                 if walker.item.count > highest.item.count:
                     highest = walker
+                walker = self_clone.position_after(walker)
             yield highest.item.value
             self_clone.remove(highest)
