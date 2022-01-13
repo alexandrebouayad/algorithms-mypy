@@ -7,14 +7,12 @@
 
 ## Static type checking with mypy (strict mode)
 
-Run
 ```console
 mypy --strict array/ linked_list/ tree/
 ```
 
 ## Doctesting
 
-Run
 ```console
 python3 -m doctest -v array/* linked_list/* tree/*
 ```
