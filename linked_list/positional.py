@@ -13,9 +13,10 @@ _T = TypeVar("_T")
 class Position(Generic[_T]):
     """
     Abstraction representing the location of a single item.
-    Note that two positions may represent the same inherent location in the
-    list. Use 'p == q' rather than 'p is q' when testing equivalence of
-    positions.
+
+    Two positions may represent the same inherent location in the list. Use
+    'p == q' rather than 'p is q' when testing equivalence of positions.
+
     >>> lst = _DoublyLinkedBase()
     >>> node_0 = lst._insert(0, lst._header, lst._trailer)
     >>> node_1 = lst._insert(1, node_0, lst._trailer)
@@ -93,12 +94,12 @@ class PositionalList(_DoublyLinkedBase[_T]):
     >>> lst.remove(position_python)
     Traceback (most recent call last):
         ...
-    IndexError: invalid position
+    ValueError: invalid position
     >>> lst_2 = PositionalList()
     >>> lst_2.insert_before(position_9, 'algorithms')
     Traceback (most recent call last):
         ...
-    IndexError: invalid position
+    ValueError: invalid position
     >>> position_algo = lst.insert_before(position_9, 'algorithms')
     >>> lst
     PositionalList(5 <-> 'algorithms' <-> 9)
@@ -115,12 +116,12 @@ class PositionalList(_DoublyLinkedBase[_T]):
     """
 
     def _validate(self, position: Position[_T]) -> _Node[_T]:
-        """Return node at position or raise IndexError if position is invalid."""
+        """Return node at position or raise ValueError if position is invalid."""
         if position._list is not self:
             # position does not refer to this list
-            raise IndexError("invalid position")
+            raise ValueError("invalid position")
         if position._node.deprecated:
-            raise IndexError("invalid position")
+            raise ValueError("invalid position")
         return position._node
 
     def _make_position(self, node: _Node[_T]) -> Position[_T]:

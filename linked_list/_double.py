@@ -78,8 +78,8 @@ class DoublyLinkedBase(Generic[_T]):
     def __init__(self) -> None:
         """Initialise empty list."""
         # set sentinel nodes
-        self._header: Header[_T] = Header()
-        self._trailer: Trailer[_T] = Trailer()
+        self._header = Header[_T]()
+        self._trailer = Trailer[_T]()
         self._header.next = self._trailer
         self._trailer.prev = self._header
 

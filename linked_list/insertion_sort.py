@@ -1,21 +1,18 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Protocol, TypeVar
 
 from linked_list.positional import PositionalList
 
+_T = TypeVar("_T", bound="_Comparable")
+
 
 class _Comparable(Protocol):
-    @abstractmethod
-    def __lt__(self: _T, other: _T) -> bool:
-        pass
+    def __lt__(self, other: _T) -> bool:
+        raise NotImplementedError
 
-    def __le__(self: _T, other: _T) -> bool:
+    def __le__(self, other: _T) -> bool:
         return self < other or self == other
-
-
-_T = TypeVar("_T", bound=_Comparable)
 
 
 def insertion_sort(lst: PositionalList[_T]) -> None:

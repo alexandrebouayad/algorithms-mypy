@@ -1,0 +1,11 @@
+{
+    "cSpell.language": "en-GB",
+    "cSpell.words": [
+        "deque",
+        "mypy",
+        "Summable"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.mypyEnabled": true,
+}
